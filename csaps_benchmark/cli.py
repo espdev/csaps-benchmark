@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 from pathlib import Path
 
 import pytest
-
 import click
+
+
+def _get_appdir() -> Path:
+    app_dir = Path.home() / '.csaps_benchmark'
+    app_dir.mkdir(parents=True, exist_ok=True)
+    return app_dir
 
 
 @click.group()
@@ -16,8 +20,7 @@ def cli():
 @cli.command(context_settings={'ignore_unknown_options': True})
 @click.argument('pytest_args', nargs=-1, type=click.UNPROCESSED)
 def run(pytest_args):
-    app_dir = Path.home() / '.csaps_benchmark'
-    app_dir.mkdir(parents=True, exist_ok=True)
+    app_dir = _get_appdir()
 
     root_dir = Path(__file__).parent
     config_path = root_dir / 'pytest.ini'

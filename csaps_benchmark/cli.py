@@ -32,7 +32,7 @@ def run(pytest_args):
         # pytest args
         '--rootdir', str(root_dir),
         '-c', str(config_path),
-        '-o', 'cache_dir={}'.format(cache_dir.as_posix()),
+        '-o', f'cache_dir={cache_dir.as_posix()}',
         '-v',
 
         # pytest-benchmark args

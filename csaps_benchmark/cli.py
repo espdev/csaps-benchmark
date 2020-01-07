@@ -37,7 +37,7 @@ def run(pytest_args):
         '--benchmark-autosave',
         '--benchmark-storage', str(benchmark_storage_dir),
         '--benchmark-columns', 'min,max,mean,median,stddev,rounds',
-        '--benchmark-sort', 'name',
+        '--benchmark-sort', 'mean',
 
         # Additional pytest/pytest-benchmark args
         *pytest_args,

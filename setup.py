@@ -30,7 +30,7 @@ setup(
         'pytest-benchmark',
         'click',
         'deepmerge',
-        'toml',
+        'pyyaml',
         'csaps',
     ],
     entry_points={

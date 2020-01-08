@@ -35,7 +35,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'csaps-benchmark = csaps_benchmark.cli:cli',
+            f'{NAME} = {PKG_NAME}.cli:cli',
         ],
     },
     url='https://github.com/espdev/csaps-benchmark',

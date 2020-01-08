@@ -103,16 +103,16 @@ def pytest_generate_tests(metafunc: Metafunc):
             names, values = param_items[0]
             ids = [f'{names}={v}' for v in values]
         else:
-            names_list = [p[0] for p in param_items]
-            values_list = [p[1] for p in param_items]
+            name_list = [p[0] for p in param_items]
+            value_list = [p[1] for p in param_items]
 
-            names = ','.join(names_list)
-            values = list(zip(*values_list))
+            names = ','.join(name_list)
+            values = list(zip(*value_list))
 
             ids = []
             for vals in values:
                 ids_ = []
-                for name, value in zip(names_list, vals):
+                for name, value in zip(name_list, vals):
                     ids_.append(f'{name}={value}')
                 ids.append('|'.join(ids_))
 

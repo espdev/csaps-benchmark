@@ -29,6 +29,8 @@ setup(
     install_requires=[
         'pytest-benchmark',
         'click',
+        'deepmerge',
+        'toml',
         'csaps',
     ],
     entry_points={

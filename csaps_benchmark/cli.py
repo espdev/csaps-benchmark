@@ -20,6 +20,7 @@ def run(pytest_args):
     data_dir.mkdir(parents=True, exist_ok=True)
 
     root_dir = Path(__file__).parent
+    bench_dir = root_dir / 'benchmark'
     config_path = root_dir / 'pytest.ini'
     cache_dir = data_dir / '.cache'
 
@@ -27,6 +28,7 @@ def run(pytest_args):
 
     args = [
         # pytest args
+        str(bench_dir),
         '--rootdir', str(root_dir),
         '-c', str(config_path),
         '-o', f'cache_dir={cache_dir.as_posix()}',

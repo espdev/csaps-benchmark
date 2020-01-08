@@ -1,17 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from pathlib import Path
+from .constants import DATA_PATH
 
 
-def get_root_path() -> Path:
-    return Path(__file__).parent
-
-
-def get_data_path() -> Path:
-    return Path.home() / '.csaps_benchmark'
-
-
-def make_and_return_data_path() -> Path:
-    path = get_data_path()
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+def make_data_directory():
+    DATA_PATH.mkdir(parents=True, exist_ok=True)

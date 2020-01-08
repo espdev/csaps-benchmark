@@ -6,7 +6,8 @@ import click
 import pytest
 
 from .config import load_config
-from .utils import make_and_return_data_path
+from . import constants
+from .utils import make_data_directory
 
 
 @click.group()
@@ -19,27 +20,20 @@ def cli(config_path):
 @cli.command(context_settings={'ignore_unknown_options': True})
 @click.argument('pytest_args', nargs=-1, type=click.UNPROCESSED)
 def run(pytest_args):
-    data_dir = make_and_return_data_path()
-
-    root_dir = Path(__file__).parent
-    bench_dir = root_dir / 'benchmark'
-    config_path = root_dir / 'pytest.ini'
-    cache_dir = data_dir / '.cache'
-
-    benchmark_storage_dir = data_dir / '.benchmarks'
+    make_data_directory()
 
     args = [
         # pytest args
-        str(bench_dir),
-        '--rootdir', str(root_dir),
-        '-c', str(config_path),
-        '-o', f'cache_dir={cache_dir.as_posix()}',
+        str(constants.BENCH_PATH),
+        '--rootdir', str(constants.PKG_PATH),
+        '-c', str(constants.PYTEST_CONFIG_PATH),
+        '-o', f'cache_dir={constants.PYTEST_CACHE_PATH.as_posix()}',
         '-v',
 
         # pytest-benchmark args
         '--benchmark-only',
         '--benchmark-autosave',
-        '--benchmark-storage', str(benchmark_storage_dir),
+        '--benchmark-storage', str(constants.BENCHMARK_STORAGE_PATH),
         '--benchmark-columns', 'min,max,mean,median,stddev,rounds',
         '--benchmark-sort', 'mean',
 

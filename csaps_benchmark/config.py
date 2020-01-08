@@ -5,8 +5,7 @@ from pathlib import Path
 import deepmerge
 import yaml
 
-from .utils import get_root_path, get_data_path
-
+from .constants import PKG_PATH, DATA_PATH
 
 CONFIG_FILE_NAME = 'benchmark.yml'
 
@@ -15,8 +14,8 @@ config = {}
 
 def benchmark_config_paths(custom_config_path: Path = None, file_name: str = CONFIG_FILE_NAME):
     return [
-        get_root_path() / file_name,
-        get_data_path() / file_name,
+        PKG_PATH / file_name,
+        DATA_PATH / file_name,
         custom_config_path,
     ]
 

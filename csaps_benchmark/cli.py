@@ -5,11 +5,7 @@ from pathlib import Path
 import pytest
 import click
 
-
-def _get_appdir() -> Path:
-    app_dir = Path.home() / '.csaps_benchmark'
-    app_dir.mkdir(parents=True, exist_ok=True)
-    return app_dir
+from ._utils import get_data_path
 
 
 @click.group()
@@ -20,13 +16,14 @@ def cli():
 @cli.command(context_settings={'ignore_unknown_options': True})
 @click.argument('pytest_args', nargs=-1, type=click.UNPROCESSED)
 def run(pytest_args):
-    app_dir = _get_appdir()
+    data_dir = get_data_path()
+    data_dir.mkdir(parents=True, exist_ok=True)
 
     root_dir = Path(__file__).parent
     config_path = root_dir / 'pytest.ini'
-    cache_dir = app_dir / '.cache'
+    cache_dir = data_dir / '.cache'
 
-    benchmark_storage_dir = app_dir / '.benchmarks'
+    benchmark_storage_dir = data_dir / '.benchmarks'
 
     args = [
         # pytest args

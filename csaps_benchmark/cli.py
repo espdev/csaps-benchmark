@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 import pytest
 
-from ._utils import get_data_path
+from .utils import make_and_return_data_path
 
 
 @click.group()
@@ -16,8 +16,7 @@ def cli():
 @cli.command(context_settings={'ignore_unknown_options': True})
 @click.argument('pytest_args', nargs=-1, type=click.UNPROCESSED)
 def run(pytest_args):
-    data_dir = get_data_path()
-    data_dir.mkdir(parents=True, exist_ok=True)
+    data_dir = make_and_return_data_path()
 
     root_dir = Path(__file__).parent
     bench_dir = root_dir / 'benchmark'

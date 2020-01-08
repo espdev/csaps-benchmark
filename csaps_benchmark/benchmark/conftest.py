@@ -1,60 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
-from typing import List
+from typing import List, TYPE_CHECKING
 
 import pytest
-from _pytest.python import Metafunc
-import toml
-from deepmerge import Merger
 import numpy as np
 
-from csaps_benchmark import get_data_path
+if TYPE_CHECKING:
+    from _pytest.python import Metafunc
+
+from csaps_benchmark.config import load_config
 
 
 def pytest_addoption(parser):
     parser.addoption('--benchmark-params-toml', type=Path, default=None,
                      help='Benchmark parameters config TOML file.')
-
-
-def root_path() -> Path:
-    return Path(__file__).parent.parent
-
-
-def data_path() -> Path:
-    path = get_data_path()
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
-def benchmark_toml_paths(config):
-    file_name = 'benchmark.toml'
-
-    return [
-        root_path() / file_name,
-        data_path() / file_name,
-        config.getoption('--benchmark-params-toml'),
-    ]
-
-
-def params_merger():
-    return Merger(
-        type_strategies=[(dict, ["merge"]), (list, ["override"])],
-        fallback_strategies=['override'],
-        type_conflict_strategies=['override']
-    )
-
-
-def benchmark_params(config):
-    merger = params_merger()
-    params = {}
-
-    for path in benchmark_toml_paths(config):
-        if path and path.exists():
-            with path.open() as fp:
-                merger.merge(params, toml.load(fp))
-
-    return params
 
 
 @pytest.fixture(scope='session')
@@ -79,21 +39,23 @@ def multivariate_data():
     return data
 
 
-def pytest_generate_tests(metafunc: Metafunc):
+def pytest_generate_tests(metafunc: 'Metafunc'):
     module_name = metafunc.module.__name__.split('.')[-1].replace('bench_', '')
     func_name = metafunc.function.__name__.replace('bench_', '')
 
-    params_config = benchmark_params(metafunc.config)
-    if module_name not in params_config:
+    custom_config_path = metafunc.config.getoption('--benchmark-params-toml')
+    benchmark_config = load_config(custom_config_path)
+
+    if module_name not in benchmark_config:
         return
 
-    module_context = params_config[module_name]
-    if func_name not in module_context:
+    module_config = benchmark_config[module_name]
+    if func_name not in module_config:
         return
 
-    param_list: List[dict] = module_context[func_name]
+    func_params: List[dict] = module_config[func_name].get('parameters', {})
 
-    for params in param_list:
+    for params in func_params:
         if not params:
             continue
 

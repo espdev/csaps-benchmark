@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-import pytest
 import click
+import pytest
 
 from ._utils import get_data_path
 

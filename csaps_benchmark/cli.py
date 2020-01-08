@@ -5,12 +5,15 @@ from pathlib import Path
 import click
 import pytest
 
+from .config import load_config
 from .utils import make_and_return_data_path
 
 
 @click.group()
-def cli():
-    pass
+@click.option('-c', '--config', 'config_path', type=Path, default=None,
+              help='Benchmark configuration YAML file')
+def cli(config_path):
+    load_config(config_path)
 
 
 @cli.command(context_settings={'ignore_unknown_options': True})

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from pathlib import Path
 from typing import List, TYPE_CHECKING
 
 import pytest
@@ -9,12 +8,7 @@ import numpy as np
 if TYPE_CHECKING:
     from _pytest.python import Metafunc
 
-from csaps_benchmark.config import load_config
-
-
-def pytest_addoption(parser):
-    parser.addoption('--benchmark-params-toml', type=Path, default=None,
-                     help='Benchmark parameters config TOML file.')
+from csaps_benchmark.config import config as benchmark_config
 
 
 @pytest.fixture(scope='session')
@@ -42,9 +36,6 @@ def multivariate_data():
 def pytest_generate_tests(metafunc: 'Metafunc'):
     module_name = metafunc.module.__name__.split('.')[-1].replace('bench_', '')
     func_name = metafunc.function.__name__.replace('bench_', '')
-
-    custom_config_path = metafunc.config.getoption('--benchmark-params-toml')
-    benchmark_config = load_config(custom_config_path)
 
     if module_name not in benchmark_config:
         return

@@ -1,0 +1,35 @@
+# Benchmarking configuration file
+---
+
+# ----------------------------------------------------------------------------
+# Benchmark module name (endswith)
+univariate:
+  # Benchmark function name (endswith)
+  make_spline:
+    # Benchmark function parametrization (the list of dicts) to support flat and product cases
+    parameters:
+      # The smoothing parameter
+      - smooth: [null, 0.0, 1.0, 0.2, 0.5, 0.8]
+
+      # The size of univariate data vector
+      - size: [10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000,
+               25000, 50000, 75000, 100000, 250000, 500000, 1000000]
+
+    # Benchmark report configuration
+    report:
+      # Grouping data by the parameter
+      group: "smooth"
+
+
+# ----------------------------------------------------------------------------
+multivariate:
+  make_spline:
+    parameters:
+      # The size of data vectors in multivariate data (M in MxN data)
+      - size: [10, 50, 100, 500, 1000, 5000]
+
+      # The number of data vectors in multivariate data (N in MxN data)
+      - ndim: [2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000]
+
+    report:
+      group: "size"

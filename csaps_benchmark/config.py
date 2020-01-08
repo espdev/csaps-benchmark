@@ -3,12 +3,12 @@
 from pathlib import Path
 
 import deepmerge
-import toml
+import yaml
 
 from .utils import get_root_path, get_data_path
 
 
-CONFIG_FILE_NAME = 'benchmark.toml'
+CONFIG_FILE_NAME = 'benchmark.yml'
 
 config = {}
 
@@ -36,6 +36,6 @@ def load_config(custom_config_path: Path = None):
     for path in benchmark_config_paths(custom_config_path):
         if path and path.exists():
             with path.open() as fp:
-                merger.merge(config, toml.load(fp))
+                merger.merge(config, yaml.safe_load(fp))
 
     return config

@@ -8,6 +8,6 @@ from csaps import csaps
 @pytest.mark.benchmark(
     group='univariate-make-spline',
 )
-def bench_make_spline(benchmark, univariate_data, size):
+def bench_make_spline(benchmark, univariate_data, size, smooth):
     x, y = univariate_data(size=size)
-    benchmark(csaps, x, y)
+    benchmark(csaps, x, y, smooth=smooth)

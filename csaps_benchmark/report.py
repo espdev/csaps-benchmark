@@ -106,6 +106,7 @@ def make_benchmark_report_json(benchmark_id: Optional[str] = None):
 def plot_benchmark(benchmark_name: str, statistic: str = 'mean',
                    benchmark_id: Optional[str] = None):
     benchmark_path = get_benchmark(benchmark_id)
+    benchmark_id = str(benchmark_path.name).split('_')[0]
 
     report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
     report_info = load_json_data(report_path)
@@ -125,7 +126,7 @@ def plot_benchmark(benchmark_name: str, statistic: str = 'mean',
         ax.loglog(x_data, y_data, '.-')
         legend.append(f'{param_group}={param_value}')
 
-    ax.set_title(benchmark_name)
+    ax.set_title(f'{benchmark_name} (ID: {benchmark_id})')
     ax.set_xlabel(param_x)
     ax.set_ylabel('time, [seconds]')
     ax.grid(True)

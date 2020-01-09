@@ -70,18 +70,20 @@ def report():
 
 
 @cli.command()
-@click.option('--id', 'benchmark_id', type=str,
-              help='Benchmark ID')
+@click.option('-i', '--id', 'ids', type=str, multiple=True,
+              help='Benchmark ID(s)')
 @click.option('-n', '--name', 'names', type=str, multiple=True,
-              help='Benchmark name')
+              help='Benchmark name(s)')
 @click.option('-s', '--statistic', type=str, multiple=False, default='mean',
-              help='Measured time statistic')
-def plot(benchmark_id, names, statistic):
+              help='Measured time statistic name(s)')
+def plot(ids, names, statistic):
     """Plot benchmark(s) results
     """
     names = names or get_benchmark_names()
+    ids = ids or [None]
 
-    for name in names:
-        plot_benchmark(name, statistic, benchmark_id=benchmark_id)
+    for _id in ids:
+        for name in names:
+            plot_benchmark(name, statistic, benchmark_id=_id)
 
     plt.show()

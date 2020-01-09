@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+from contextlib import contextmanager
 from pathlib import Path
 
 import click
@@ -9,6 +11,16 @@ from . import constants
 from .config import load_config
 from .utils import make_data_directory
 from .report import make_benchmark_report_json
+
+
+@contextmanager
+def cd(path: Path):
+    old_path = os.getcwd()
+    os.chdir(str(path))
+    try:
+        yield
+    finally:
+        os.chdir(old_path)
 
 
 @click.group()
@@ -42,7 +54,8 @@ def run(pytest_args):
         *pytest_args,
     ]
 
-    return pytest.main(args)
+    with cd(constants.BENCH_PATH):
+        return pytest.main(args)
 
 
 @cli.command()

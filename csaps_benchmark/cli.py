@@ -6,11 +6,12 @@ from pathlib import Path
 
 import click
 import pytest
+import matplotlib.pyplot as plt
 
 from . import constants
 from .config import load_config
 from .utils import make_data_directory
-from .report import make_benchmark_report_json
+from .report import make_benchmark_report_json, plot_benchmark, get_benchmark_names
 
 
 @contextmanager
@@ -33,6 +34,9 @@ def cli(config_path):
 @cli.command(context_settings={'ignore_unknown_options': True})
 @click.argument('pytest_args', nargs=-1, type=click.UNPROCESSED)
 def run(pytest_args):
+    """Run benchmarks
+    """
+
     make_data_directory()
 
     args = [
@@ -60,4 +64,22 @@ def run(pytest_args):
 
 @cli.command()
 def report():
+    """Make benchmarks report
+    """
     make_benchmark_report_json()
+
+
+@cli.command()
+@click.option('-n', '--name', 'names', type=str, multiple=True,
+              help='Benchmark name')
+@click.option('-s', '--statistic', type=str, multiple=False, default='mean',
+              help='Measured time statistic')
+def plot(names, statistic):
+    """Plot benchmark(s) results
+    """
+    names = names or get_benchmark_names()
+
+    for name in names:
+        plot_benchmark(name, statistic)
+
+    plt.show()

@@ -5,6 +5,8 @@ from typing import Optional, List
 from pathlib import Path
 import json
 
+import matplotlib.pyplot as plt
+
 from .constants import BENCHMARK_MACHINE_ID_PATH, REPORT_MACHINE_ID_PATH
 from .config import config
 
@@ -37,21 +39,21 @@ def get_benchmark(id: Optional[str] = None) -> Path:
     return benchmark
 
 
-def get_benchmark_groups() -> List[str]:
-    groups = []
+def get_benchmark_names() -> List[str]:
+    names = []
     for module, funcs in config.items():
         for func in funcs:
-            groups.append(f'{module}.{func}')
-    return groups
+            names.append(f'{module}.{func}')
+    return names
 
 
 def collect_report_info(benchmark_info):
     report_info = {}
 
-    for group in get_benchmark_groups():
-        module, func = group.split('.')
+    for name in get_benchmark_names():
+        module, func = name.split('.')
 
-        report_info[group] = {
+        report_info[name] = {
             'param_group': config[module][func]['param_group'],
             'param_x': config[module][func]['param_x'],
             'x': [],
@@ -59,17 +61,17 @@ def collect_report_info(benchmark_info):
         }
 
     for benchmark in benchmark_info['benchmarks']:
-        group = benchmark['group']
-        module, func = group.split('.')
-        group_info = report_info[group]
+        name = benchmark['group']
+        module, func = name.split('.')
+        info_by_name = report_info[name]
 
-        param_group = benchmark['params'][group_info['param_group']]
-        param_x = benchmark['params'][group_info['param_x']]
+        param_group = benchmark['params'][info_by_name['param_group']]
+        param_x = benchmark['params'][info_by_name['param_x']]
 
-        if group_info['x'].count(param_x) == 0:
-            group_info['x'].append(param_x)
+        if info_by_name['x'].count(param_x) == 0:
+            info_by_name['x'].append(param_x)
 
-        stats = group_info['y'].setdefault(param_group, defaultdict(list))
+        stats = info_by_name['y'].setdefault(param_group, defaultdict(list))
         collected_stats = set(config[module][func]['stats'])
 
         for stats_name, stats_value in benchmark['stats'].items():
@@ -79,11 +81,14 @@ def collect_report_info(benchmark_info):
     return report_info
 
 
-def make_benchmark_report_json(benchmark_id: Optional[str] = None):
-    benchmark = get_benchmark(benchmark_id)
+def load_json_data(json_path: Path) -> dict:
+    with json_path.open(encoding='utf8') as fp:
+        return json.load(fp)
 
-    with benchmark.open(encoding='utf8') as fp:
-        benchmark_info = json.load(fp)
+
+def make_benchmark_report_json(benchmark_id: Optional[str] = None):
+    benchmark_path = get_benchmark(benchmark_id)
+    benchmark_info = load_json_data(benchmark_path)
 
     report_info = {
         'machine_info': benchmark_info['machine_info'],
@@ -92,7 +97,38 @@ def make_benchmark_report_json(benchmark_id: Optional[str] = None):
     }
 
     REPORT_MACHINE_ID_PATH.mkdir(parents=True, exist_ok=True)
-    report_path = REPORT_MACHINE_ID_PATH / benchmark.name
+    report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
 
     with report_path.open('w', encoding='utf8') as fp:
         json.dump(report_info, fp, indent=4)
+
+
+def plot_benchmark(benchmark_name: str, statistic: str = 'mean',
+                   benchmark_id: Optional[str] = None):
+    benchmark_path = get_benchmark(benchmark_id)
+
+    report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
+    report_info = load_json_data(report_path)
+
+    benchmark_report = report_info['report'][benchmark_name]
+
+    param_group = benchmark_report['param_group']
+    param_x = benchmark_report['param_x']
+    x_data = benchmark_report['x']
+    y = benchmark_report['y']
+
+    fig, ax = plt.subplots(1, 1)
+
+    legend = []
+    for param_value, stats in y.items():
+        y_data = stats[statistic]
+        ax.loglog(x_data, y_data, '.-')
+        legend.append(f'{param_group}={param_value}')
+
+    ax.set_title(benchmark_name)
+    ax.set_xlabel(param_x)
+    ax.set_ylabel('time, [seconds]')
+    ax.grid(True)
+    ax.legend(legend)
+
+    return fig, ax

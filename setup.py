@@ -32,6 +32,7 @@ setup(
         'deepmerge',
         'pyyaml',
         'csaps',
+        'matplotlib',
     ],
     entry_points={
         'console_scripts': [

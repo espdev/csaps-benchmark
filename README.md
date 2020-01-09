@@ -20,4 +20,12 @@ The results will be saved in `.benchmark` directory in your user directory.
 
 ### Make Reports
 
-TODO `¯\_(ツ)_/¯`
+```bash
+(your_venv)$ csaps-benchmark report
+```
+
+### Report Plots
+
+```bash
+(your_venv)$ csaps-benchmark plot
+```

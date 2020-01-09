@@ -21,7 +21,9 @@ def get_latest_benchmark(pat: str = BENCHMARK_PAT):
     )
 
     if not benchmarks:
-        return None
+        raise RuntimeError(
+            f"No benchmarks found for the pattern '{pat}' in '{BENCHMARK_MACHINE_ID_PATH}'")
+
     return benchmarks[-1]
 
 
@@ -31,12 +33,7 @@ def get_benchmark(id: Optional[str] = None) -> Path:
     else:
         pat = BENCHMARK_PAT
 
-    benchmark = get_latest_benchmark(pat)
-
-    if not benchmark:
-        raise RuntimeError(f"No suitable benchmarks found in '{BENCHMARK_MACHINE_ID_PATH}'")
-
-    return benchmark
+    return get_latest_benchmark(pat)
 
 
 def get_benchmark_names() -> List[str]:

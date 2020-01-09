@@ -24,7 +24,7 @@ The results will be saved in `.benchmark` directory in your user directory.
 (your_venv)$ csaps-benchmark report
 ```
 
-### Report Plots
+### Plot Reports
 
 ```bash
 (your_venv)$ csaps-benchmark plot

@@ -109,6 +109,10 @@ def plot_benchmark(benchmark_name: str, statistic: str = 'mean',
     benchmark_id = str(benchmark_path.name).split('_')[0]
 
     report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
+
+    if not report_path.exists():
+        make_benchmark_report_json(benchmark_id)
+
     report_info = load_json_data(report_path)
 
     benchmark_report = report_info['report'][benchmark_name]

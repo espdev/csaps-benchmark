@@ -1,50 +1,73 @@
 # Benchmarking configuration file
 ---
 
-# ----------------------------------------------------------------------------
-# Benchmark module name (endswith)
-univariate:
-  # Benchmark function name (endswith)
-  make_spline:
-    # Benchmark function parametrization (the list of dicts) to support flat and product cases
-    parameters:
-      # The smoothing parameter
-      - smooth: [null, 0.0, 1.0, 0.5]
+# Benchmarks configuration
+benchmarks:
+  # ----------------------------------------------------------------------------
+  # Benchmark module name (endswith)
+  univariate:
+    # Benchmark function name (endswith)
+    make_spline:
+      # Benchmark function parametrization (the list of dicts) to support flat and product cases
+      parameters:
+        # The smoothing parameter
+        - smooth: [null, 0.0, 1.0, 0.5]
 
-      # The size of univariate data vector
-      - size: [10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000,
-               25000, 50000, 75000, 100000, 250000, 500000, 1000000]
+        # The size of univariate data vector
+        - size: [10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000,
+                 25000, 50000, 75000, 100000, 250000, 500000, 1000000]
 
-    # Grouping data by the parameter
-    param_group: "smooth"
+      # Grouping data by the parameter
+      param_group: "smooth"
 
-    # X axis parameter
-    param_x: "size"
+      # X axis parameter
+      param_x: "size"
 
-    # Stats in the report
-    stats:
-      - "min"
-      - "max"
-      - "mean"
-      - "median"
-      - "stddev"
+    evaluate_spline:
+      parameters:
+        # The input data size
+        - input_size: [100, 500, 1000, 5000, 10000, 50000, 100000, 250000, 500000, 1000000]
 
+        # The output data size
+        - output_size: [100, 500, 1000, 5000, 10000, 20000, 40000, 60000, 80000, 100000, 200000, 300000,
+                        400000, 500000, 600000, 700000, 800000, 900000, 1000000, 2500000, 5000000, 10000000]
 
-# ----------------------------------------------------------------------------
-multivariate:
-  make_spline:
-    parameters:
-      # The size of data vectors in multivariate data (M in MxN data)
-      - size: [10, 50, 100, 500, 1000, 5000]
+      param_group: "input_size"
+      param_x: "output_size"
 
-      # The number of data vectors in multivariate data (N in MxN data)
-      - ndim: [2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000]
+  # ----------------------------------------------------------------------------
+  multivariate:
+    make_spline:
+      parameters:
+        # The size of data vectors in multivariate data (M in MxN data)
+        - size: [10, 50, 100, 500, 1000, 5000]
 
-    param_group: "size"
-    param_x: "ndim"
-    stats:
-      - "min"
-      - "max"
-      - "mean"
-      - "median"
-      - "stddev"
+        # The number of data vectors in multivariate data (N in MxN data)
+        - ndim: [2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000]
+
+      param_group: "size"
+      param_x: "ndim"
+
+    evaluate_spline:
+      parameters:
+        # The input data size
+        - input_size: [10, 50, 100, 500, 1000]
+
+        # The number of data vectors in multivariate data (N in MxN data)
+        - ndim: [1000]
+
+        # The output data size
+        - output_size: [10, 50, 100, 500, 1000, 5000, 10000]
+
+      param_group: "input_size"
+      param_x: "output_size"
+
+# Report configuration
+report:
+  # Statis in the report
+  stats:
+    - "min"
+    - "max"
+    - "mean"
+    - "median"
+    - "stddev"

@@ -8,7 +8,7 @@ import numpy as np
 if TYPE_CHECKING:
     from _pytest.python import Metafunc
 
-from csaps_benchmark.config import config as benchmark_config
+from csaps_benchmark.config import config
 
 
 @pytest.fixture(scope='session')
@@ -33,14 +33,23 @@ def multivariate_data():
     return data
 
 
+@pytest.fixture
+def output_data_sites():
+    def data(x, size):
+        return np.linspace(x[0], x[-1], size)
+    return data
+
+
 def pytest_generate_tests(metafunc: 'Metafunc'):
     module_name = metafunc.module.__name__.split('.')[-1].replace('bench_', '')
     func_name = metafunc.function.__name__.replace('bench_', '')
 
-    if module_name not in benchmark_config:
+    benchmarks_config = config['benchmarks']
+
+    if module_name not in benchmarks_config:
         return
 
-    module_config = benchmark_config[module_name]
+    module_config = benchmarks_config[module_name]
     if func_name not in module_config:
         return
 

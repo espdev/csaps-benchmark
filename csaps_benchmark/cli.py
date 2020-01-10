@@ -41,7 +41,7 @@ def run(pytest_args):
 
     args = [
         # pytest args
-        str(constants.BENCH_PATH),
+        str(constants.BENCHMARKS_PATH),
         '--rootdir', str(constants.PKG_PATH),
         '-c', str(constants.PYTEST_CONFIG_PATH),
         '-o', f'cache_dir={constants.PYTEST_CACHE_PATH.as_posix()}',
@@ -58,15 +58,13 @@ def run(pytest_args):
         *pytest_args,
     ]
 
-    with cd(constants.BENCH_PATH):
-        return pytest.main(args)
+    with cd(constants.BENCHMARKS_PATH):
+        status_code = pytest.main(args)
 
+    if status_code == 0:
+        make_benchmark_report_json()
 
-@cli.command()
-def report():
-    """Make benchmarks report
-    """
-    make_benchmark_report_json()
+    return status_code
 
 
 @cli.command()

@@ -38,7 +38,7 @@ def get_benchmark(id: Optional[str] = None) -> Path:
 
 def get_benchmark_names() -> List[str]:
     names = []
-    for module, funcs in config.items():
+    for module, funcs in config['benchmarks'].items():
         for func in funcs:
             names.append(f'{module}.{func}')
     return names
@@ -46,16 +46,19 @@ def get_benchmark_names() -> List[str]:
 
 def collect_report_info(benchmark_info):
     report_info = {}
+    benchmarks_config = config['benchmarks']
 
     for name in get_benchmark_names():
         module, func = name.split('.')
 
         report_info[name] = {
-            'param_group': config[module][func]['param_group'],
-            'param_x': config[module][func]['param_x'],
+            'param_group': benchmarks_config[module][func]['param_group'],
+            'param_x': benchmarks_config[module][func]['param_x'],
             'x': [],
             'y': {},
         }
+
+    collected_stats = config['report']['stats']
 
     for benchmark in benchmark_info['benchmarks']:
         name = benchmark['group']
@@ -69,7 +72,6 @@ def collect_report_info(benchmark_info):
             info_by_name['x'].append(param_x)
 
         stats = info_by_name['y'].setdefault(param_group, defaultdict(list))
-        collected_stats = set(config[module][func]['stats'])
 
         for stats_name, stats_value in benchmark['stats'].items():
             if stats_name in collected_stats:

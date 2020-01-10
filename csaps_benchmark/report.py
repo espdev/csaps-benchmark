@@ -92,7 +92,7 @@ def make_benchmark_report_json(benchmark_id: Optional[str] = None):
     report_info = {
         'machine_info': benchmark_info['machine_info'],
         'commit_info': benchmark_info['commit_info'],
-        'report': collect_report_info(benchmark_info),
+        'report_info': collect_report_info(benchmark_info),
     }
 
     REPORT_MACHINE_ID_PATH.mkdir(parents=True, exist_ok=True)
@@ -108,13 +108,9 @@ def plot_benchmark(benchmark_name: str, statistic: str = 'mean',
     benchmark_id = str(benchmark_path.name).split('_')[0]
 
     report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
-
-    if not report_path.exists():
-        make_benchmark_report_json(benchmark_id)
-
     report_info = load_json_data(report_path)
 
-    benchmark_report = report_info['report'][benchmark_name]
+    benchmark_report = report_info['report_info'][benchmark_name]
 
     param_group = benchmark_report['param_group']
     param_x = benchmark_report['param_x']

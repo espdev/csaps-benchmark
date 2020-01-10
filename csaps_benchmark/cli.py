@@ -59,14 +59,12 @@ def run(pytest_args):
     ]
 
     with cd(constants.BENCHMARKS_PATH):
-        return pytest.main(args)
+        status_code = pytest.main(args)
 
+    if status_code == 0:
+        make_benchmark_report_json()
 
-@cli.command()
-def report():
-    """Make benchmarks report
-    """
-    make_benchmark_report_json()
+    return status_code
 
 
 @cli.command()

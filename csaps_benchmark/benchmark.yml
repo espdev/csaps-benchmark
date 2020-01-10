@@ -27,6 +27,7 @@ benchmarks:
       parameters:
         # The input data size
         - input_size: [100, 500, 1000, 5000, 10000, 50000, 100000, 250000, 500000, 1000000]
+
         # The output data size
         - output_size: [100, 500, 1000, 5000, 10000, 20000, 40000, 60000, 80000, 100000, 200000, 300000,
                         400000, 500000, 600000, 700000, 800000, 900000, 1000000, 2500000, 5000000, 10000000]
@@ -46,6 +47,20 @@ benchmarks:
 
       param_group: "size"
       param_x: "ndim"
+
+    evaluate_spline:
+      parameters:
+        # The input data size
+        - input_size: [10, 50, 100, 500, 1000]
+
+        # The number of data vectors in multivariate data (N in MxN data)
+        - ndim: [1000]
+
+        # The output data size
+        - output_size: [10, 50, 100, 500, 1000, 5000, 10000]
+
+      param_group: "input_size"
+      param_x: "output_size"
 
 # Report configuration
 report:

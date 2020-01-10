@@ -18,13 +18,7 @@ An utility project for benchmarking [csaps](https://github.com/espdev/csaps) pac
 
 The results will be saved in `.benchmark` directory in your user directory. 
 
-### Make Reports
-
-```bash
-(your_venv)$ csaps-benchmark report
-```
-
-### Plot Reports
+### Make and Plot Reports
 
 ```bash
 (your_venv)$ csaps-benchmark plot

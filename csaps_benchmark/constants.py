@@ -12,7 +12,7 @@ PKG_PATH = Path(__file__).parent
 PYTEST_CONFIG_PATH = PKG_PATH / 'pytest.ini'
 PYTEST_CACHE_PATH = DATA_PATH / '.cache'
 
-BENCH_PATH = PKG_PATH / 'benchmark'
+BENCHMARKS_PATH = PKG_PATH / 'benchmarks'
 
 BENCHMARK_STORAGE_PATH = DATA_PATH / 'benchmarks'
 REPORT_STORAGE_PATH = DATA_PATH / 'reports'

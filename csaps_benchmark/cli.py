@@ -41,7 +41,7 @@ def run(pytest_args):
 
     args = [
         # pytest args
-        str(constants.BENCH_PATH),
+        str(constants.BENCHMARKS_PATH),
         '--rootdir', str(constants.PKG_PATH),
         '-c', str(constants.PYTEST_CONFIG_PATH),
         '-o', f'cache_dir={constants.PYTEST_CACHE_PATH.as_posix()}',
@@ -58,7 +58,7 @@ def run(pytest_args):
         *pytest_args,
     ]
 
-    with cd(constants.BENCH_PATH):
+    with cd(constants.BENCHMARKS_PATH):
         return pytest.main(args)
 
 

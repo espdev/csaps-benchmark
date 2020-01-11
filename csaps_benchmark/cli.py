@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from . import constants
 from .config import load_config
 from .utils import make_data_directory
-from .report import make_benchmark_report_json, plot_benchmark, get_benchmark_names
+from .report import make_benchmark_report, plot_benchmark, get_benchmark_names
 
 
 @contextmanager
@@ -62,9 +62,14 @@ def run(pytest_args):
         status_code = pytest.main(args)
 
     if status_code == 0:
-        make_benchmark_report_json()
+        make_benchmark_report()
 
     return status_code
+
+
+@cli.command()
+def report():
+    make_benchmark_report()
 
 
 @cli.command()

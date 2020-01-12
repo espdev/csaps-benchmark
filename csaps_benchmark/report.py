@@ -85,16 +85,10 @@ def make_benchmark_report():
         json.dump(report_info, fp, indent=4)
 
 
-def make_report_dataframe(benchmark_name: str, benchmark_id: Optional[str] = None, fillna: float =-1.0):
-    benchmark_path = get_benchmark(benchmark_id)
-
-    report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
-    report_info = load_json_data(report_path)
-
-    benchmark_report = report_info['benchmarks'][benchmark_name]
+def get_report_dataframe(benchmark_report: dict, fillna: float = -1.0):
+    data = benchmark_report['params'].copy()
     stats_names = config['report']['stats']
 
-    data = benchmark_report['params'].copy()
     for stat_name, stat_values in benchmark_report['stats'].items():
         if stat_name in stats_names:
             data[stat_name] = stat_values
@@ -102,7 +96,7 @@ def make_report_dataframe(benchmark_name: str, benchmark_id: Optional[str] = Non
     return pd.DataFrame(data).fillna(fillna)
 
 
-def plot_benchmark(benchmark_name: str, statistic: str = 'mean',
+def plot_benchmark(benchmark_name: str, stat: str = 'mean',
                    benchmark_id: Optional[str] = None):
     benchmark_path = get_benchmark(benchmark_id)
     benchmark_id = str(benchmark_path.name).split('_')[0]
@@ -110,25 +104,32 @@ def plot_benchmark(benchmark_name: str, statistic: str = 'mean',
     report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
     report_info = load_json_data(report_path)
 
-    benchmark_report = report_info['report_info'][benchmark_name]
+    module, func = benchmark_name.split('.')
+    benchmark_config = config['benchmarks'][module][func]
+    benchmark_report = report_info['benchmarks'][benchmark_name]
+    benchmark_df = get_report_dataframe(benchmark_report)
 
-    param_group = benchmark_report['param_group']
-    param_x = benchmark_report['param_x']
-    x_data = benchmark_report['x']
-    y = benchmark_report['y']
+    groupby_params = benchmark_config['groupby']
+    param_x = benchmark_config['x']
 
     fig, ax = plt.subplots(1, 1)
 
-    legend = []
-    for param_value, stats in y.items():
-        y_data = stats[statistic]
-        ax.loglog(x_data, y_data, '.-')
-        legend.append(f'{param_group}={param_value}')
+    for group, df in benchmark_df.groupby(groupby_params):
+        x_data = df[param_x]
+        y_data = df[stat]
+
+        if not isinstance(group, (list, tuple)):
+            group = [group]
+
+        gr = zip(groupby_params, group)
+        label = '|'.join(f'{n}={v}' for n, v in gr)
+
+        ax.plot(x_data, y_data, '.-', label=label)
 
     ax.set_title(f'{benchmark_name} (ID: {benchmark_id})')
     ax.set_xlabel(param_x)
-    ax.set_ylabel('time, [seconds]')
+    ax.set_ylabel(f'{stat} time, [seconds]')
+    ax.legend()
     ax.grid(True)
-    ax.legend(legend)
 
     return fig, ax

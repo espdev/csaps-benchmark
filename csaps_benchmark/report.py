@@ -5,6 +5,7 @@ from typing import Optional, List
 from pathlib import Path
 import json
 
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from .constants import BENCHMARK_MACHINE_ID_PATH, REPORT_MACHINE_ID_PATH
@@ -74,7 +75,7 @@ def make_benchmark_report():
     report_info = {
         'machine_info': benchmark_info['machine_info'],
         'commit_info': benchmark_info['commit_info'],
-        'benchmarks': list(reports.values()),
+        'benchmarks': reports,
     }
 
     REPORT_MACHINE_ID_PATH.mkdir(parents=True, exist_ok=True)
@@ -82,6 +83,23 @@ def make_benchmark_report():
 
     with report_path.open('w', encoding='utf8') as fp:
         json.dump(report_info, fp, indent=4)
+
+
+def make_report_dataframe(benchmark_name: str, benchmark_id: Optional[str] = None, fillna: float =-1.0):
+    benchmark_path = get_benchmark(benchmark_id)
+
+    report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
+    report_info = load_json_data(report_path)
+
+    benchmark_report = report_info['benchmarks'][benchmark_name]
+    stats_names = config['report']['stats']
+
+    data = benchmark_report['params'].copy()
+    for stat_name, stat_values in benchmark_report['stats'].items():
+        if stat_name in stats_names:
+            data[stat_name] = stat_values
+
+    return pd.DataFrame(data).fillna(fillna)
 
 
 def plot_benchmark(benchmark_name: str, statistic: str = 'mean',

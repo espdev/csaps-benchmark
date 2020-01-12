@@ -38,3 +38,6 @@ def load_config(custom_config_path: Path = None):
                 merger.merge(config, yaml.safe_load(fp))
 
     return config
+
+
+load_config()

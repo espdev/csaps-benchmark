@@ -33,6 +33,17 @@ def multivariate_data():
     return data
 
 
+@pytest.fixture(scope='session')
+def ndgrid_data():
+    def data(shape, seed=1234):
+        np.random.seed(seed)
+        x = [np.arange(s) for s in shape]
+        y = np.random.randn(*shape) * 0.15
+        return x, y
+
+    return data
+
+
 @pytest.fixture
 def output_data_sites():
     def data(x, size):

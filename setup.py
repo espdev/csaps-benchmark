@@ -31,6 +31,7 @@ setup(
         'click',
         'deepmerge',
         'pyyaml',
+        'pandas',
         'csaps',
         'matplotlib',
     ],

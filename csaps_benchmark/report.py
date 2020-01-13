@@ -5,6 +5,7 @@ from typing import Optional, List
 from pathlib import Path
 import json
 
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from .constants import BENCHMARK_MACHINE_ID_PATH, REPORT_MACHINE_ID_PATH
@@ -44,65 +45,58 @@ def get_benchmark_names() -> List[str]:
     return names
 
 
-def collect_report_info(benchmark_info):
-    report_info = {}
-    benchmarks_config = config['benchmarks']
-
-    for name in get_benchmark_names():
-        module, func = name.split('.')
-
-        report_info[name] = {
-            'param_group': benchmarks_config[module][func]['param_group'],
-            'param_x': benchmarks_config[module][func]['param_x'],
-            'x': [],
-            'y': {},
-        }
-
-    collected_stats = config['report']['stats']
-
-    for benchmark in benchmark_info['benchmarks']:
-        name = benchmark['group']
-        module, func = name.split('.')
-        info_by_name = report_info[name]
-
-        param_group = benchmark['params'][info_by_name['param_group']]
-        param_x = benchmark['params'][info_by_name['param_x']]
-
-        if info_by_name['x'].count(param_x) == 0:
-            info_by_name['x'].append(param_x)
-
-        stats = info_by_name['y'].setdefault(param_group, defaultdict(list))
-
-        for stats_name, stats_value in benchmark['stats'].items():
-            if stats_name in collected_stats:
-                stats[stats_name].append(stats_value)
-
-    return report_info
-
-
 def load_json_data(json_path: Path) -> dict:
     with json_path.open(encoding='utf8') as fp:
         return json.load(fp)
 
 
-def make_benchmark_report_json(benchmark_id: Optional[str] = None):
-    benchmark_path = get_benchmark(benchmark_id)
-    benchmark_info = load_json_data(benchmark_path)
+def make_benchmark_report():
+    latest_benchmark_path = get_benchmark()
+    benchmark_info = load_json_data(latest_benchmark_path)
+    reports = {}
+
+    for benchmark in benchmark_info['benchmarks']:
+        name = benchmark['group']
+
+        report = reports.setdefault(name, {
+            'name': name,
+            'options': benchmark['options'],
+            'extra_info': benchmark['extra_info'],
+            'params': defaultdict(list),
+            'stats': defaultdict(list),
+        })
+
+        for pname, pvalue in benchmark['params'].items():
+            report['params'][pname].append(pvalue)
+
+        for sname, svalue in benchmark['stats'].items():
+            report['stats'][sname].append(svalue)
 
     report_info = {
         'machine_info': benchmark_info['machine_info'],
         'commit_info': benchmark_info['commit_info'],
-        'report_info': collect_report_info(benchmark_info),
+        'benchmarks': reports,
     }
 
     REPORT_MACHINE_ID_PATH.mkdir(parents=True, exist_ok=True)
-    report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
+    report_path = REPORT_MACHINE_ID_PATH / latest_benchmark_path.name
 
     with report_path.open('w', encoding='utf8') as fp:
         json.dump(report_info, fp, indent=4)
 
 
-def plot_benchmark(benchmark_name: str, statistic: str = 'mean',
+def get_report_dataframe(benchmark_report: dict, fillna: float = -1.0):
+    data = benchmark_report['params'].copy()
+    stats_names = config['report']['stats']
+
+    for stat_name, stat_values in benchmark_report['stats'].items():
+        if stat_name in stats_names:
+            data[stat_name] = stat_values
+
+    return pd.DataFrame(data).fillna(fillna)
+
+
+def plot_benchmark(benchmark_name: str, stat: str = 'mean',
                    benchmark_id: Optional[str] = None):
     benchmark_path = get_benchmark(benchmark_id)
     benchmark_id = str(benchmark_path.name).split('_')[0]
@@ -110,25 +104,32 @@ def plot_benchmark(benchmark_name: str, statistic: str = 'mean',
     report_path = REPORT_MACHINE_ID_PATH / benchmark_path.name
     report_info = load_json_data(report_path)
 
-    benchmark_report = report_info['report_info'][benchmark_name]
+    module, func = benchmark_name.split('.')
+    benchmark_config = config['benchmarks'][module][func]
+    benchmark_report = report_info['benchmarks'][benchmark_name]
+    benchmark_df = get_report_dataframe(benchmark_report)
 
-    param_group = benchmark_report['param_group']
-    param_x = benchmark_report['param_x']
-    x_data = benchmark_report['x']
-    y = benchmark_report['y']
+    groupby_params = benchmark_config['groupby']
+    param_x = benchmark_config['x']
 
     fig, ax = plt.subplots(1, 1)
 
-    legend = []
-    for param_value, stats in y.items():
-        y_data = stats[statistic]
-        ax.loglog(x_data, y_data, '.-')
-        legend.append(f'{param_group}={param_value}')
+    for group, df in benchmark_df.groupby(groupby_params):
+        x_data = df[param_x]
+        y_data = df[stat]
+
+        if not isinstance(group, (list, tuple)):
+            group = [group]
+
+        gr = zip(groupby_params, group)
+        label = '|'.join(f'{n}={v}' for n, v in gr)
+
+        ax.plot(x_data, y_data, '.-', label=label)
 
     ax.set_title(f'{benchmark_name} (ID: {benchmark_id})')
     ax.set_xlabel(param_x)
-    ax.set_ylabel('time, [seconds]')
+    ax.set_ylabel(f'{stat} time, [seconds]')
+    ax.legend()
     ax.grid(True)
-    ax.legend(legend)
 
     return fig, ax

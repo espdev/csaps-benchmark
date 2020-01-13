@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from . import constants
 from .config import load_config
 from .utils import make_data_directory
-from .report import make_benchmark_report_json, plot_benchmark, get_benchmark_names
+from .report import make_benchmark_report, plot_benchmark, get_benchmark_names
 
 
 @contextmanager
@@ -62,9 +62,14 @@ def run(pytest_args):
         status_code = pytest.main(args)
 
     if status_code == 0:
-        make_benchmark_report_json()
+        make_benchmark_report()
 
     return status_code
+
+
+@cli.command()
+def report():
+    make_benchmark_report()
 
 
 @cli.command()
@@ -72,9 +77,9 @@ def run(pytest_args):
               help='Benchmark ID(s)')
 @click.option('-n', '--name', 'names', type=str, multiple=True,
               help='Benchmark name(s)')
-@click.option('-s', '--statistic', type=str, multiple=False, default='mean',
-              help='Measured time statistic name(s)')
-def plot(ids, names, statistic):
+@click.option('-s', '--stat', type=str, multiple=False, default='mean',
+              help='Measured time stat name(s)')
+def plot(ids, names, stat):
     """Plot benchmark(s) results
     """
     names = names or get_benchmark_names()
@@ -82,6 +87,6 @@ def plot(ids, names, statistic):
 
     for _id in ids:
         for name in names:
-            plot_benchmark(name, statistic, benchmark_id=_id)
+            plot_benchmark(name, stat, benchmark_id=_id)
 
     plt.show()

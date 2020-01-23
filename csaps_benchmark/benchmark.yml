@@ -82,13 +82,13 @@ benchmarks:
     evaluate_spline:
       parameters:
         # Data array dimension
-        - ndim: [2, 2, 2, 2, 2, 2, 2]
+        - ndim: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 
           # Input data size (shape: [input_size] * ndim)
-          input_size: [5, 10, 25, 50, 100, 250, 500]
+          input_size: [5, 10, 25, 50, 100, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500]
 
         # Output data size (shape: [output_size] * ndim)
-        - output_size: [5, 10, 50, 100, 250, 500, 1000, 2500, 5000]
+        - output_size: [5, 10, 25, 50, 100, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 7500, 10000]
 
       groupby: ["ndim", "input_size"]
       x: "output_size"

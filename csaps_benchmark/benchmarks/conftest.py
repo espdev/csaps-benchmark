@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from typing import List, TYPE_CHECKING
+from collections.abc import Sequence
 
 import pytest
 import numpy as np
@@ -47,7 +48,11 @@ def ndgrid_data():
 @pytest.fixture
 def output_data_sites():
     def data(x, size):
-        return np.linspace(x[0], x[-1], size)
+        if isinstance(x, Sequence):
+            # ndgrid data sites
+            return [data(np.asarray(xn), size) for xn in x]
+        else:
+            return np.linspace(x[0], x[-1], size)
     return data
 
 

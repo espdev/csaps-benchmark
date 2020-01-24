@@ -112,24 +112,25 @@ def plot_benchmark(benchmark_name: str, stat: str = 'mean',
     groupby_params = benchmark_config['groupby']
     param_x = benchmark_config['x']
 
-    fig, ax = plt.subplots(1, 1)
+    with plt.style.context('ggplot'):
+        fig, ax = plt.subplots(1, 1)
 
-    for group, df in benchmark_df.groupby(groupby_params):
-        x_data = df[param_x]
-        y_data = df[stat]
+        for group, df in benchmark_df.groupby(groupby_params):
+            x_data = df[param_x]
+            y_data = df[stat]
 
-        if not isinstance(group, (list, tuple)):
-            group = [group]
+            if not isinstance(group, (list, tuple)):
+                group = [group]
 
-        gr = zip(groupby_params, group)
-        label = '|'.join(f'{n}={v}' for n, v in gr)
+            gr = zip(groupby_params, group)
+            label = '|'.join(f'{n}={v}' for n, v in gr)
 
-        ax.plot(x_data, y_data, '.-', label=label)
+            ax.plot(x_data, y_data, '.-', label=label)
 
-    ax.set_title(f'{benchmark_name} (ID: {benchmark_id})')
-    ax.set_xlabel(param_x)
-    ax.set_ylabel(f'{stat} time, [seconds]')
-    ax.legend()
-    ax.grid(True)
+        ax.set_title(f'{benchmark_name} (ID: {benchmark_id})')
+        ax.set_xlabel(param_x)
+        ax.set_ylabel(f'{stat} time, [seconds]')
+        ax.legend()
+        ax.grid(True)
 
     return fig, ax

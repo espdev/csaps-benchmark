@@ -113,6 +113,8 @@ def plot_benchmark(benchmark_name: str, stat: str = 'mean',
     param_x = benchmark_config['x']
 
     with plt.style.context('ggplot'):
+        plt.rcParams['figure.autolayout'] = True
+
         fig, ax = plt.subplots(1, 1)
 
         for group, df in benchmark_df.groupby(groupby_params):
@@ -127,10 +129,11 @@ def plot_benchmark(benchmark_name: str, stat: str = 'mean',
 
             ax.plot(x_data, y_data, '.-', label=label)
 
-        ax.set_title(f'{benchmark_name} (ID: {benchmark_id})')
+        # ax.set_title(f'{benchmark_name} (ID: {benchmark_id})')
         ax.set_xlabel(param_x)
         ax.set_ylabel(f'{stat} time, [seconds]')
-        ax.legend()
+        ax.legend(loc='lower left', bbox_to_anchor=(0.0, 1.01), ncol=2,
+                  borderaxespad=0, frameon=False)
         ax.grid(True)
 
     return fig, ax

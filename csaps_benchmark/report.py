@@ -126,7 +126,7 @@ def plot_benchmark(benchmark_name: str, stat: str = 'mean',
                 group = [group]
 
             gr = zip(groupby_params, group)
-            label = '|'.join(f'{n}={v} (id={benchmark_id})' for n, v in gr)
+            label = '|'.join(f'{n}={v}' for n, v in gr) + f' (id={benchmark_id})'
 
             ax.plot(x_data, y_data, '.-', label=label)
 

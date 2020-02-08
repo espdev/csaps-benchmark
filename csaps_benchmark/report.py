@@ -97,7 +97,7 @@ def get_report_dataframe(benchmark_report: dict, fillna: float = -1.0):
 
 
 def plot_benchmark(benchmark_name: str, stat: str = 'mean',
-                   benchmark_id: Optional[str] = None):
+                   benchmark_id: Optional[str] = None, ax=None):
     benchmark_path = get_benchmark(benchmark_id)
     benchmark_id = str(benchmark_path.name).split('_')[0]
 
@@ -115,7 +115,8 @@ def plot_benchmark(benchmark_name: str, stat: str = 'mean',
     with plt.style.context('ggplot'):
         plt.rcParams['figure.autolayout'] = True
 
-        fig, ax = plt.subplots(1, 1)
+        if ax is None:
+            fig, ax = plt.subplots(1, 1)
 
         for group, df in benchmark_df.groupby(groupby_params):
             x_data = df[param_x]
@@ -125,15 +126,15 @@ def plot_benchmark(benchmark_name: str, stat: str = 'mean',
                 group = [group]
 
             gr = zip(groupby_params, group)
-            label = '|'.join(f'{n}={v}' for n, v in gr)
+            label = '|'.join(f'{n}={v} (id={benchmark_id})' for n, v in gr)
 
             ax.plot(x_data, y_data, '.-', label=label)
 
-        # ax.set_title(f'{benchmark_name} (ID: {benchmark_id})')
+        # ax.set_title(f'{benchmark_name}')
         ax.set_xlabel(param_x)
         ax.set_ylabel(f'{stat} time, [seconds]')
         ax.legend(loc='lower left', bbox_to_anchor=(0.0, 1.01), ncol=2,
                   borderaxespad=0, frameon=False)
         ax.grid(True)
 
-    return fig, ax
+    return ax

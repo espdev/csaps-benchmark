@@ -79,14 +79,21 @@ def report():
               help='Benchmark name(s)')
 @click.option('-s', '--stat', type=str, multiple=False, default='mean',
               help='Measured time stat name(s)')
-def plot(ids, names, stat):
+@click.option('--group-id/--no-group-id', default=False,
+              help='Grouping all given IDs for each name on the same plot')
+def plot(ids, names, stat, group_id):
     """Plot benchmark(s) results
     """
     names = names or get_benchmark_names()
     ids = ids or [None]
 
-    for _id in ids:
-        for name in names:
-            plot_benchmark(name, stat, benchmark_id=_id)
+    for name in names:
+        ax = None
+
+        for _id in ids:
+            ax = plot_benchmark(name, stat, benchmark_id=_id, ax=ax)
+
+            if not group_id:
+                ax = None
 
     plt.show()

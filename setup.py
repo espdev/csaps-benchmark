@@ -34,6 +34,7 @@ setup(
         'pandas',
         'csaps',
         'matplotlib',
+        'mpl-events',
     ],
     entry_points={
         'console_scripts': [

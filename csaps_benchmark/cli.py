@@ -7,10 +7,11 @@ from pathlib import Path
 import click
 import pytest
 import matplotlib.pyplot as plt
+from mpl_events import MplEventConnection, MplEvent, mpl
 
 from . import constants
 from .config import load_config
-from .utils import make_data_directory
+from .utils import make_data_directory, get_artist_pixel_bbox
 from .report import make_benchmark_report, plot_benchmark, get_benchmark_names
 
 
@@ -72,6 +73,26 @@ def report():
     make_benchmark_report()
 
 
+def dynamic_legend(event: mpl.DrawEvent):
+    fig = event.canvas.figure
+    axes = fig.axes[0]
+    legend = axes.get_legend()
+
+    axes_width = get_artist_pixel_bbox(axes, event.renderer).width
+
+    legend_item_widths = []
+
+    for line, text in zip(legend.get_lines(), legend.get_texts()):
+        width = (get_artist_pixel_bbox(line, event.renderer).width +
+                 get_artist_pixel_bbox(text, event.renderer).width)
+        legend_item_widths.append(width)
+
+    ncol = max(int(axes_width / max(legend_item_widths)), 1)
+
+    axes.legend(loc='lower left', bbox_to_anchor=(0.0, 1.01), ncol=ncol,
+                borderaxespad=0, frameon=False)
+
+
 @cli.command()
 @click.option('-i', '--id', 'ids', type=str, multiple=True,
               help='Benchmark ID(s)')
@@ -92,6 +113,9 @@ def plot(ids, names, stat, group_id):
 
         for _id in ids:
             ax = plot_benchmark(name, stat, benchmark_id=_id, ax=ax)
+
+            if not hasattr(ax, 'conn'):
+                ax.conn = MplEventConnection(ax, MplEvent.DRAW, dynamic_legend)
 
             if not group_id:
                 ax = None
